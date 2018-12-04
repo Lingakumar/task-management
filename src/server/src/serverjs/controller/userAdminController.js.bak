@@ -1,0 +1,106 @@
+const util = require('../utils/util.js');
+const adminModel = require("../model/userAdminModel");
+
+const UserAdminController = {
+    activateAccount(req, res) {
+        let reqBody = req.body || {};
+        let mandatoryFields = [
+            {
+                "key": "email_id",
+                "value": reqBody.email_id,
+                "isMandatory": true,
+                "pattern": /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+            }
+        ];
+        let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        let email = reqBody.email_id;
+        adminModel.activateAccount(email)
+        .then(data => res.send(data))
+        .catch(err => res.send(err));
+    },
+    loginToTheAccount(req, res) {
+        let message = [];
+        if(req.session && !req.session.user) {
+            let reqBody = req.body || {};
+            let mandatoryFields = [
+                {
+                    "key": "email_id",
+                    "value": reqBody.email_id,
+                    "isMandatory": true,
+                    "pattern": /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+                },
+                {
+                    "key": "password",
+                    "value": reqBody.password,
+                    "isMandatory": true
+                }
+            ];
+            let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+            if(errors && errors.length > 0) {
+                res.send(util.returnResp("Failure", errors));
+                return;
+            }
+            let email_id = reqBody.email_id;
+            let password = reqBody.password;
+            adminModel.verifyUser(email_id, password)
+            .then(data => {
+                console.log(data);
+                if(data && data.message && data.status && data.status == "Failure") {
+                    res.send(data);
+                }
+                else if(data && data.status == "Success" && data.data) {
+                    let session = req.session || null;
+                    if(session) {
+                        session.user = data;
+                        message.push("You are successfully logged in");
+                        res.send(util.returnResp("Success", message));
+                    }
+                    else {
+                        message.push("Session in not valid");
+                        res.send(util.returnResp("Failure", message));
+                    }
+                }
+                else {
+                    message.push("Password entered does not match with the record");
+                    res.send(util.returnResp("Failure", message));
+                }
+            })
+            .catch(err => res.send(err));    
+        }
+        else {
+            message.push("Your session is already in active, please logout and try again");
+            res.send(util.returnResp("Failure", message));
+        }
+    },
+    logoutfromAccount(req, res) {
+        let message = [];
+        if(req.session) {
+            if(req.session.user) {
+                req.session.destroy(function(err) {
+                    if(err) {
+                        message.push("The user was not signed out, please try to logout again");
+                        res.send(util.returnResp("Failure", message));    
+                    }
+                    else {
+                        message.push("You are successfully logged out");
+                        res.send(util.returnResp("Success", message));
+                    }
+                });        
+            }
+            else {
+                message.push("You dont have active session to logout");
+                res.send(util.returnResp("Failure", message));
+            }
+        }
+        else {
+            message.push("Session in not valid");
+            res.send(util.returnResp("Failure", message));
+        }
+    }
+}
+
+module.exports = UserAdminController;

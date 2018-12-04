@@ -1,0 +1,158 @@
+/*.DmLandingPage,
+.projectLandingPage {
+    height: 100%;
+    overflow: auto;
+}*/
+/*.projectmaincontainer {
+    overflow: auto;
+}*/
+.projectLandingPage .TableContainer {
+    overflow: auto;
+    height: -webkit-fill-available;
+}
+.addResourceIcon{
+    background-image: url('../images/add_user.png');
+    height: 20px;
+    width: 20px;
+    background-size: 20px;
+    float: left;
+    cursor: pointer;
+}
+.addsubprojectIconIcon
+{
+    background-image: url('../images/subproject.png');
+    height: 20px;
+    width: 20px;
+    background-size: 21px;
+    float: left;
+    cursor: pointer;
+}
+.addIconCont {
+    margin-right: 15px;
+    float: left;
+    margin-bottom: 5px;
+}
+.createProjLink {
+    float: right;
+    border: 1px solid #20b2aa;
+    padding: 20px;
+    margin: 20px 20px 20px 0px;
+    background-color: #20b2aa;
+    color: #ffffff;
+}
+.react-datepicker__input-container input {
+    padding: 0px 0px 0px 10px;
+    border: 1px solid #cccccc;
+    height: 25px;
+    -webkit-appearance: none;
+    font-size: 16px;
+    width: 138px;
+}
+.add_project_info .react-datepicker-wrapper,
+.add_project_info .react-datepicker__input-container{
+    width: 100%;
+}
+.add_project_info .elem_container {
+    width: calc(100% - 40px);
+}
+.add_project_info .value_cont,
+.add_project_info .label_name {
+    float: left;
+}
+.projectLandingPage .resource_table {
+    margin-top: 20px;
+}
+.project_table th,
+.project_table td,
+.resource_table th,
+.resource_table td,
+.resourceCost_table th,
+.resourceCost_table td{
+    border: 1px solid #20b2aa;
+}
+.DmLandingPage .TableContainer,
+.norecordsfound td {
+    border: 0px;
+}
+.project_table {
+    overflow: auto;
+    max-height: 500px;
+}
+.cancelPage,
+.nextPage,
+.savePage {
+    background-color: #20b2aa;
+    text-decoration: none;
+    height: 40px;
+    width: 100%;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+.proj_btn_cont .next_cont,
+.proj_btn_cont .cancel_cont,
+.proj_btn_cont .save_cont {
+    width: calc(50% - 5px);
+    display: inline-block;
+}
+.proj_btn_cont {
+    width: 200px;
+    margin: 10px auto 0px auto;
+}
+.proj_btn_cont .cancel_cont {
+    margin-left: 10px;
+}
+.invalidProj_cont{
+    width: 100%;
+    text-align: center;
+}
+.tableHeading {
+    font-size: 15px;
+    font-weight: 700;
+    padding-top: 15px;
+}
+.add_project_info #filter {
+    margin-bottom: 20px;
+}
+.removeIcon{
+    background-image: url('../images/delete-sign.png');
+    background-size: 23px;
+    background-repeat: no-repeat;
+    width: 23px;
+    height: 23px;
+    float: left;
+    cursor: pointer;
+}
+.project_viewer .editIconCont {
+    margin-right: 15px;
+    float: left;
+}
+.reqAction {
+    cursor: pointer;
+}
+#dmFilter .filterCont , #dmResourceFilter .filterCont , #resourceFilter .filterCont {
+    width: calc(100% - 40px);
+}
+#ProjectAvailableResource {
+    margin-top: 20px;
+}
+#mainContainer .projectLandingPage ,#mainContainer .projectLandingPage .projectmaincontainer
+{
+    height: 100%;
+    display: block;
+}
+.react-date-picker
+{
+  position: initial;
+}
+.resource_table .react-datepicker__input-container input {
+    width: 88px;
+}
+#dmResourceFilter .multiSelectParent {
+    position: relative;
+}
+span.reqAction.assigned {
+    color: #20b2aa;
+    cursor: not-allowed;
+}

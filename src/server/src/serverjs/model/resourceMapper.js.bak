@@ -1,0 +1,340 @@
+const collectionName = "resource_mapper";
+
+const dbUtil = require("./dbUtil");
+const util = require('../utils/util');
+const clientModel = require("../model/clientModel");
+
+const checkResourceAvalablility = (projects, projectId, startDate, endDate, requestType) => {
+    let userProjects = projects || [];
+    let allocatedPercentage = 0;
+    let message = [];
+    let obj = {};
+    for(let project of userProjects) {
+        if(requestType && requestType == "creation" && project.projectId == projectId) {
+            message.push("Resource cannot be allocated to the project as the user is already allocated to the specified project");
+            break;
+        }
+        else {
+            if(project.status != "pending") {
+                let projectStartDate = new Date(project.start_date).getTime();
+                let projectEndDate = new Date(project.end_date).getTime();
+                if(projectStartDate && projectEndDate) {
+                    if((startDate > projectStartDate && endDate < projectEndDate) ||
+                    (startDate < projectStartDate && projectEndDate > endDate && endDate > projectStartDate) || 
+                    (startDate <= projectStartDate && endDate >= projectEndDate) ||
+                    (startDate > projectStartDate && endDate > projectEndDate && projectEndDate > startDate)) {
+                        allocatedPercentage += parseInt(project.allocation);
+                    }
+                }    
+            }
+        }
+    }
+    console.log(obj);
+    obj.message = message;
+    obj.allocatedPercentage = allocatedPercentage;
+    return obj;
+}
+
+const resourceMapper = {
+    async createResource(obj) {
+        let dbInstance = obj.db || await dbUtil.connectDb();
+        let db = dbInstance.db("API").collection(collectionName);
+        let message = obj.message || [];
+        let userData = obj.data || {};
+        return db.insertOne(userData)
+        .then(data => {
+            dbInstance.close();
+            let insertionObj = data || {};
+            if(insertionObj.insertedCount > 0) {
+                message.push("We have successfully added the user to mapper");    
+                return (util.returnResp("Success", message));
+            }
+            message.push("There was no data update in the resource mapper");
+            return (util.returnResp("Failure", message)); 
+        })
+        .catch(err => {
+            message.push("There was some error while adding user data to mapper");
+            return (util.returnResp("Failure", message, err));
+        });
+    },
+    updateResource(reqBody) {
+        let message = [];
+        let arrayObj = {};
+        let toFind = {employee_id: reqBody.id}
+        let toUpdate = {};
+        let updatedReqBody = reqBody;
+        delete(updatedReqBody.id); 
+        if("primary_skill" in updatedReqBody) {
+            arrayObj.primary_skill = {$each: updatedReqBody.primary_skill};
+            delete(updatedReqBody.primary_skill);
+        }
+        if("secondary_skills" in updatedReqBody) {
+            arrayObj.secondary_skills = {$each: updatedReqBody.secondary_skills};
+            delete(updatedReqBody.secondary_skills);
+        }
+        if(arrayObj) {
+            toUpdate["$addToSet"] = arrayObj;
+        }
+        if(Object.keys(updatedReqBody).length > 0) {
+            toUpdate["$set"] = updatedReqBody;
+        }
+        return dbUtil.connectDb()
+        .then(dbInstance => {
+            let db = dbInstance.db("API").collection(collectionName);
+            return db.updateOne(toFind, toUpdate)
+            .then(data => {
+                console.log(data);
+                dbInstance.close();
+                if(data.result && data.result.nModified > 0) {
+                    message.push("We have successfully updated the Resource Mapper Data");    
+                    return (util.returnResp("Success", message));
+                }
+                message.push("There is no updates in the mapper data");
+                return (util.returnResp("Failure", message));                    
+            })
+            .catch(err => {
+                message.push("There was some error while updating user mapper data");
+                return (util.returnResp("Failure", message, err));
+            });
+        })
+        .catch(err => {
+            message.push("There was some error while connecting to user mapper database");
+            return (util.returnResp("Failure", message, err));
+        });    
+    },
+    removeResource(id) {
+        let toFind = {employee_id: id}
+        let message = [];
+        return dbUtil.connectDb()
+            .then(dbInstance => {
+                let db = dbInstance.db("API").collection(collectionName);
+                return db.deleteOne(toFind) 
+                .then(data => {
+                    dbInstance.close();
+                    if(data.deletedCount > 0 && data.result && data.result.n > 0) {
+                        message.push("We have successfully deleted the mapper Resource Data"); 
+                        return util.returnResp("Success", message);
+                    }
+                    else {
+                        message.push("Employee id provided is either invalid or we are not able to get any mapper user data for the id provided");
+                        return (util.returnResp("Failure", message));
+                    }
+                })
+                .catch(err => {
+                    message.push("There was some error while deleting user from database");
+                    return (util.returnResp("Failure", message, err));
+                });
+            })
+            .catch(err => {
+                message.push("There was some error while connecting to user database");
+                return (util.returnResp("Failure", message, err));
+            });  
+    },
+    allocateProject(resourceId, projectInfo) {
+        let message = [];
+        let startDate = new Date(projectInfo.start_date).getTime();
+        let endDate = new Date(projectInfo.end_date).getTime();
+        let toFind = {employee_id: resourceId};
+        let clientId = projectInfo.clientId;
+        let projectId = projectInfo.projectId; 
+        let toAllocate = parseInt(projectInfo.allocation);
+        return Promise.all([
+            dbUtil.connectDb(),
+            clientModel.findProject(clientId, projectId)
+        ])
+        .then(promiseData => {
+            let dbInstance = promiseData[0];
+            let projectData = promiseData[1] && promiseData[1].data ? promiseData[1].data : {};
+            projectInfo.client_name = projectData.client_name;
+            projectInfo.project_name = projectData.project_name;
+            if(projectInfo.project_name && projectInfo.client_name) {
+                let toUpdate = {$push: {"projects": projectInfo}};
+                let db = dbInstance.db("API").collection(collectionName);
+                return db.find(toFind).toArray()
+                .then(data => {
+                    let userData = data[0];
+                    console.log(userData);
+                    if(data.length > 0) {
+                        let userProjects = userData.projects || [];
+                        console.log(userProjects);
+                        let obj = checkResourceAvalablility(userProjects,projectId, startDate, endDate, "creation");
+                        console.log(obj);
+                        if(obj.message.length > 0) {
+                            dbInstance.close();
+                            return (util.returnResp("Failure", obj.message));
+                        }
+                        if(obj.allocatedPercentage == 0 || (obj.allocatedPercentage + toAllocate) <= 100) {
+                            return db.updateOne(toFind, toUpdate)
+                            .then(data => {
+                                dbInstance.close();
+                                if(data.result && data.result.n && data.result.n > 0 && data.result.nModified && data.result.nModified > 0) {
+                                    message.push("We have successfully added the Resource to project Data"); 
+                                    return util.returnResp("Success", message);
+                                }
+                                else {
+                                    message.push("There was no update to make");
+                                    return (util.returnResp("Failure", message));
+                                }
+                            })
+                            .catch(err => {
+                                dbInstance.close();
+                                message.push("There was some error while allocating user to project");
+                                return (util.returnResp("Failure", message, err));
+                            });
+                        }
+                        else if((obj.allocatedPercentage + toAllocate) > 100){
+                            dbInstance.close();
+                            message.push("Resource cannot be allocated to the project as the user is already allocated 100% to the projects");
+                            return (util.returnResp("Failure", message));
+                        }
+                        else {
+                            dbInstance.close();
+                            message.push("Resource cannot be allocated to the project as the user is not available during the period specified");
+                            return (util.returnResp("Failure", message));
+                        }
+                    }
+                    else {
+                        dbInstance.close();
+                        message.push(`The employee id provided is either invalid or there is no record for the employee id provided`);
+                        return (util.returnResp("Failure", message));
+                    }
+                })
+                .catch(err => {
+                    dbInstance.close();
+                    message.push("There was some error while updating user mapper data");
+                    return (util.returnResp("Failure", message, err));
+                });    
+            }
+            else {
+                dbInstance.close();
+                message.push("Project id/ Client id provided is either invalid or we are not able to get any mapper project data for the id provided");
+                return (util.returnResp("Failure", message));
+            }
+        })
+        .catch(err => {
+            message.push("There was some error while connecting to user mapper database");
+            return (util.returnResp("Failure", message, err));
+        });   
+    },
+    releaseFromProject(employee_id, project_id, client_id) {
+        let message = [];
+        let toFind = {employee_id};
+        let toUpdate = {$pull: {projects: {clientId: client_id, projectId: project_id}}};
+        return dbUtil.connectDb()
+        .then(dbInstance => {
+            let db = dbInstance.db("API").collection(collectionName);
+            return db.updateOne(toFind, toUpdate)
+            .then(data => {
+                dbInstance.close();
+                if(data.result && data.result.nModified > 0) {
+                    message.push("We have successfully removed the Resource from project");    
+                    return (util.returnResp("Success", message));
+                }
+                message.push("There is no updates in the data");
+                return (util.returnResp("Failure", message));                    
+            })
+            .catch(err => {
+                message.push("There was some error while updating user mapper data");
+                return (util.returnResp("Failure", message, err));
+            });
+        })
+        .catch(err => {
+            message.push("There was some error while connecting to user mapper database");
+            return (util.returnResp("Failure", message, err));
+        });
+    },
+    updateResourceProjectInfo(employee_id, project_id, client_id, mapper_fields) {
+        let message = [];
+        let toFind = {employee_id, "projects.projectId": project_id, "projects.clientId": client_id};
+        let toUpdate = {$set: mapper_fields};
+        return dbUtil.connectDb()
+        .then(dbInstance => {
+            let db = dbInstance.db("API").collection(collectionName);
+            if("projects.$.start_date" in mapper_fields || "projects.$.end_date" in mapper_fields || "projects.$.allocation" in mapper_fields) {
+                return db.find(toFind).toArray()
+                .then(data => {
+                    if(data.length > 0) {
+                        let userData = data[0];
+                        let userProjects = userData.projects || [];
+                        let userAllocatedProject = userProjects.filter(project => project.projectId == project_id);
+                        let startDate = mapper_fields.start_date ? new Date(mapper_fields.start_date).getTime() : userAllocatedProject[0].start_date;
+                        let endDate = mapper_fields.end_date ? new Date(mapper_fields.end_date).getTime() : userAllocatedProject[0].end_date;
+                        let toAllocate = mapper_fields.allocation ? parseInt(mapper_fields.allocation) : userAllocatedProject[0].allocation;
+                        let obj = checkResourceAvalablility(userProjects, project_id, startDate, endDate, "updation");
+                        if(obj.message.length > 0) {
+                            dbInstance.close();
+                            return (util.returnResp("Failure", obj.message));
+                        }
+                        if(obj.allocatedPercentage == 0 || (obj.allocatedPercentage + toAllocate) <= 100) {
+                            return db.updateOne(toFind, toUpdate)
+                            .then(data => {
+                                dbInstance.close();
+                                if(data.result && data.result.n && data.result.n > 0 && data.result.nModified && data.result.nModified > 0) {
+                                    message.push("We have successfully updated the project Data of resource"); 
+                                    return util.returnResp("Success", message);
+                                }
+                                else {
+                                    message.push("There was no update to make");
+                                    return (util.returnResp("Failure", message));
+                                }
+                            })
+                            .catch(err => {
+                                dbInstance.close();
+                                message.push("There was some error while updating project info");
+                                return (util.returnResp("Failure", message, err));
+                            });
+                        }
+                        else if((obj.allocatedPercentage + toAllocate) > 100){
+                            dbInstance.close();
+                            message.push("Resource cannot be allocated to the project as the user is already allocated 100% to the projects");
+                            return (util.returnResp("Failure", message));
+                        }
+                        else {
+                            dbInstance.close();
+                            message.push("Resource cannot be allocated to the project as the user is not available during the period specified");
+                            return (util.returnResp("Failure", message));
+                        }
+                    }
+                    else {
+                        dbInstance.close();
+                        message.push(`The employee id provided is either invalid or there is no record for the employee id provided`);
+                        return (util.returnResp("Failure", message));
+                    }
+
+                })     
+                .catch(err => {
+                    console.log(err);
+                    message.push("There was some error while getting user mapper data");
+                    return (util.returnResp("Failure", message, err));
+                });                   
+            }
+            else {
+                return db.updateOne(toFind, toUpdate)
+                .then(data => {
+                    console.log(data);
+                    dbInstance.close();
+                    if(data.result && data.result.nModified > 0) {
+                        message.push("We have successfully updated the Resource from project");    
+                        return (util.returnResp("Success", message));
+                    }
+                    message.push("There is no updates in the data");
+                    return (util.returnResp("Failure", message));                    
+                })
+                .catch(err => {
+                    console.log(err);
+                    message.push("There was some error while updating user mapper data");
+                    return (util.returnResp("Failure", message, err));
+                });
+            }
+        })
+    },
+    async getResourceDetails(dbIns, query) {
+        let dbInstance = dbIns || await dbUtil.connectDb();
+        let db = dbInstance.db("API").collection(collectionName);
+        return db.find(query).toArray()
+        .then(data => data)
+        .catch(err => err);
+    }
+}
+
+module.exports = resourceMapper;

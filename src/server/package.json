@@ -1,0 +1,8 @@
+{
+  "name": "resourcerequest",
+  "version": "0.0.1",
+  "description": "Resource Management Tool",
+  "main": "main.js",
+  "author": "srinath",
+  "license": "ISC"
+}

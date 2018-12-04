@@ -1,0 +1,58 @@
+
+const Util = {
+    getRandomNumber(min) {
+        //return (Math.floor(Math.random() * (max - min + 1)) + min).toString();
+        return (Math.floor(Math.random() * Math.pow(10,min))).toString();
+    },
+    returnResp(status, message, response) {
+        let obj = {
+            status: status || "",
+            message: message || [],
+        }
+        if(response) {
+            obj.data = response;
+        }
+        return obj;
+    },
+    validateRequestBody(mandatoryFields) {
+        let errObj = [];
+        mandatoryFields.map(fields => {
+            let message = "";
+            let key = fields.key;
+            if(typeof(fields.value) != "undefined") {
+                if((fields.type != "Array" && typeof(fields.value) === 'string') || (fields.type == "Array" && Array.isArray(fields.value))) {
+                    if((typeof(fields.value) === 'string' && fields.value.trim() == "") || Array.isArray(fields.value) && fields.value.length ==0) {
+                        message = `Value for ${key} cannot be empty`;
+                    }
+                    else if(fields.pattern) {
+                        let value = new RegExp(fields.pattern);
+                        if(!value.test(fields.value)) {
+                            message = `Value for ${key} is not valid`;
+                        }
+            }
+            }
+                else {
+                    message = `Type of ${key} is not in valid format`;
+            }
+        }
+            else if(fields.isMandatory) {
+                message = `${key} value is a mandatory field`;
+            }
+            if(message) {
+                errObj.push(message);
+            }
+            })
+        return errObj;
+    },
+    getAvailableFields(arr, reqBody) {
+        let obj = {};
+        arr.map(field => {
+            if(reqBody[field]) {
+                obj[field] = reqBody[field];
+            }
+        });
+        return obj;
+    }
+}
+
+module.exports = Util;

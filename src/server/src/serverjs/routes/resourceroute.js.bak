@@ -1,0 +1,12 @@
+var express = require('express');
+var app = express.Router({mergeParams: true});
+
+const resourceController = require("../controller/resource");
+
+app.post("/create", (req, res) => resourceController.createResource(req, res));
+app.delete("/remove", (req, res) => resourceController.removeResource(req, res));
+app.put("/update", (req, res) => resourceController.updateResource(req, res));
+app.put("/exit", (req, res) => resourceController.resourceExit(req, res));
+app.post("/allocate-project", (req, res) => resourceController.allocateToProject(req, res));
+
+module.exports = app;

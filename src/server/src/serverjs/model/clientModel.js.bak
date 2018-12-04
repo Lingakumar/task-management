@@ -1,0 +1,141 @@
+const collectionName = "project";
+
+const dbUtil = require("./dbUtil");
+const util = require('../utils/util');
+
+const getIdentifiers = (db) => {
+    let id = util.getRandomNumber(5);
+    toFind = {id: id}
+    return db.find(toFind).toArray()
+    .then(data => {
+        if(data && data.length == 0) {
+            return id;
+        }
+        else {
+            getIdentifiers(db);
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        return 0;
+    })
+}
+
+const Client = {
+    createNewProject(projectObj) {
+        let projectName = projectObj.client_name || "";
+        let toFind = {client_name: projectName};
+        let message = [];
+        return dbUtil.connectDb()
+        .then(dbInstance => {
+            let db = dbInstance.db("API").collection(collectionName);
+            return getIdentifiers(db)
+            .then(id => {
+                id = projectName.slice(0,3) + id;
+                projectObj.client_id = id;
+                return db.findAndModify(toFind, {}, {$setOnInsert: projectObj}, {upsert: true})
+                .then(data => {
+                    dbInstance.close();
+                    if(data && data.lastErrorObject && data.lastErrorObject.updatedExisting) {
+                        message.push("The project with this name already exists");
+                        return (util.returnResp("Failure", message, data.value));
+                    }
+                    else {
+                        message.push("We have successfully added the project");
+                        return (util.returnResp("Success", message));
+                    }
+                })
+                .catch(err => {
+                    dbInstance.close();
+                    message.push("We are not able to add this project at the moment");
+                    return (util.returnResp("Failure", message, err));
+                });
+            })
+            .catch(err => {
+                dbInstance.close();
+                let message = "Cannot get the identifier for the project";
+                return (util.returnResp("Failure", message, err));
+            });
+        })
+        .catch(err => {
+            let message = "There was some error while connecting to project database";
+            return (util.returnResp("Failure", message, err));
+        });  
+    },
+    deleteProject(projectId) {
+        let toFind = {client_id: projectId};
+        let message = [];
+        return dbUtil.connectDb()
+        .then(dbInstance => {
+            let db = dbInstance.db("API").collection(collectionName);
+            return db.deleteOne(toFind)
+            .then(data => {
+                dbInstance.close();
+                if(data) {
+                    if(data.deletedCount > 0) {
+                        message.push("Project was deleted successfully");
+                        return (util.returnResp("Success", message));
+                    }
+                    else if(data.result && data.result.n == 0) {
+                        message.push("The project id provided is either invalid or there is no project with the id specified");
+                        return (util.returnResp("Failure", message));
+                    }    
+                    else {
+                        message.push("We are not able to delete the project at this moment");
+                        return (util.returnResp("Failure", message));
+                    }
+                }
+                else {
+                    message.push("We are not able to delete the project at this moment");
+                    return (util.returnResp("Failure", message));
+                }
+            })
+            .catch(err => {
+                dbInstance.close();
+                message.push("There was some error while tryig to delete the project from database");
+                return (util.returnResp("Failure", message, err));
+            });    
+        })
+        .catch(err => {
+            message.push("There was some error while connecting to project database");
+            return (util.returnResp("Failure", message, err));
+        });    
+    },
+    findProject(clientId, projectId) {
+        let message = [];
+        let toFind = {client_id: clientId, "projects.project_id": projectId}
+        return dbUtil.connectDb()
+        .then(dbInstance => {
+            let db = dbInstance.db("API").collection(collectionName);
+            return db.find(toFind).toArray()
+            .then(data => {
+                dbInstance.close();
+                if(data.length > 0) {
+                    let clientData = data[0];
+                    let project = clientData.projects.filter(project => project.project_id == projectId);
+                    let obj = {
+                        client_name: clientData.client_name,
+                        project_name: project[0].project_name
+                    }
+                    message.push("Project data is found succcessfully");
+                    return (util.returnResp("Success", message, obj));
+                }
+                else {
+                    message.push("Project id/ Client id provided is either invalid or we are not able to get any mapper project data for the id provided");
+                    return (util.returnResp("Failure", message));
+                }
+            })
+            .catch(err => {
+                dbInstance.close();
+                message.push("There was some error while trying to find the project from database");
+                return (util.returnResp("Failure", message, err));
+            });    
+        })
+        .catch(err => {
+            message.push("There was some error while connecting to project database");
+            return (util.returnResp("Failure", message, err));
+        });  
+    }
+}
+
+module.exports = Client;
