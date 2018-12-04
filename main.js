@@ -8,6 +8,7 @@ const resourcesRoute = require('./src/server/src/serverjs/routes/resourceroute')
 const projectRoute = require('./src/server/src/serverjs/routes/projectroute');
 const adminRoute = require('./src/server/src/serverjs/routes/admin_route');
 const authorizer = require('./src/server/src/serverjs/routes/authorizer');
+const timesheetRoute = require('./src/server/src/serverjs/routes/timesheetRoute');
 const util = require('./src/server/src/serverjs/utils/util');
 const dbUtil = require('./src/server/src/serverjs/model/dbUtil');
 app.use(bodyParser.urlencoded({extended:false}));
@@ -45,6 +46,7 @@ const checkSession = (req, res, next) => {
 app.use('/resources/', checkSession, resourcesRoute);
 app.use('/project/', checkSession, projectRoute);
 app.use('/account/', checkSession, authorizer);
+app.use('/timesheet',timesheetRoute);
 app.use('/user/',adminRoute);
 app.get('/get/:id', (req, res) => {
     let collectionName = req && req.params && req.params.id ? req.params.id : "";

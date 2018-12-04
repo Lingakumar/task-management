@@ -8,6 +8,7 @@ const accessKeys = [
     "request_resource",
     "functional_management",
     "account",
+    "timesheetAccess",
     "admin"
 ]
 

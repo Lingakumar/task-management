@@ -5,6 +5,7 @@ const adminModel = require("../model/userAdminModel");
 const resourceController = require("./resource");
 const projectController = require("./project");
 const accountController = require('./userAdminController');
+const timesheetController = require('./timesheet');
 
 const getControllerAccesskey = (req, res, controllerKey) => {
     switch(controllerKey) {
@@ -201,6 +202,13 @@ const getControllerAccesskey = (req, res, controllerKey) => {
             let obj = {
                 key: ["client_view","client_edit","request_resource","admin"],
                 next: () => projectController.getProjectInfo(req, res)
+            }
+            return obj;
+        }
+        case "getTdata" : {
+            let obj = {
+                key: ["admin" , "timesheetAccess"],
+                next: () => timesheetController.getData(req, res)
             }
             return obj;
         }
