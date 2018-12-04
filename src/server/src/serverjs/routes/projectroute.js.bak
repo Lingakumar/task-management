@@ -1,0 +1,84 @@
+
+const express = require('express');
+const app = express.Router();
+const DBNAME = "rmt";
+const collectionName = "project";
+const projectController = require('../controller/project');
+const dbUtil = require("../model/dbUtil");
+const util = require('../utils/util');
+
+app.post("/create", (req, res) => projectController.createNewProject(req, res));
+app.post("/addProject",  (req, res) => projectController.addProjectToClient(req, res));
+app.delete("/removeProject",  (req, res) => projectController.removeprojectFromClient(req, res));
+app.delete("/remove", (req, res) => projectController.deleteProject(req, res));
+app.put("/update", (req, res) => projectController.updateProjectData(req, res));
+app.post("/getAllProjects", (req, res) => projectController.getAllProjects(req,res));
+
+app.post("/get", (req, res) => {
+    let reqBody = req && req.body ? req.body : {};
+    let mandatoryFields = [
+        {
+            "key": "project_id",
+            "value": reqBody.project_id,
+            "isMandatory": true
+        },
+        {
+            "key": "client_id",
+            "value": reqBody.client_id,
+            "isMandatory": true
+        }
+    ]
+    let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+    if(errors && errors.length > 0) {
+        res.send(util.returnResp("Failure", errors));
+        return;
+    }
+    let clientId = reqBody.client_id || "";
+    let projectId = reqBody.project_id || ""; 
+    let toFind = {client_id: clientId};
+    let message = [];
+    return dbUtil.connectDb()
+    .then(dbInstance => {
+        let db = dbInstance.db(DBNAME).collection(collectionName);
+        db.find(toFind).toArray()
+        .then(data => {
+            if(data.length > 0) {
+                let clientData = data[0];
+                let projectData = [];
+                if(projectId) {
+                    let projects = clientData.projects || [];
+                    if(projects.length > 0) {
+                        projectData = projects.filter(project => project.project_id == projectId);
+                        clientData.subProjects = projectData || [];
+                        clientData.subProjects[0].client_name = clientData.client_name ? clientData.client_name : "";
+                        if(projectData.length == 0) {
+                            message.push("Project Id provided is either invalid or the project data doesnot exist for the given project id");
+                        }
+                    }
+                    else {
+                        message.push("We are not able to get the project data for the id provided");
+                    }
+                }
+                message.push("The project list was listed successfully");
+                res.send(util.returnResp("Success", message, clientData.subProjects));
+            }
+            else {
+                message.push("The project id provided is either not valid or data for project id entered does not exist");
+                res.send(util.returnResp("Failure", message));
+            }
+            dbInstance.close();
+        })
+        .catch(err => {
+            message.push("There was some error while getting project data list");
+            res.send(util.returnResp("Failure", message, err));
+            dbInstance.close();
+        });
+    })
+    .catch(err => {
+        message.push("There was some error while connecting to project database");
+        res.send(util.returnResp("Failure", message, err));
+    });
+    
+});
+
+module.exports = app;

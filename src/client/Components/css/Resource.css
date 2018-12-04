@@ -1,0 +1,26 @@
+.resource_table td .cancelResource
+{
+    margin-top: 4px !important;
+    float: left !important;
+}
+.resource_table td .approveResource
+{
+    background-image: url('../images/correct-symbol.png');
+    background-size: 30px;
+    background-repeat: no-repeat;
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    float: left;
+    padding-right: 10%;
+}
+.pendingstatus
+{
+    text-transform: capitalize;
+    color: #ff0000;
+}
+.inprogressstatus
+{
+    text-transform: capitalize;
+    color: #006400;
+}

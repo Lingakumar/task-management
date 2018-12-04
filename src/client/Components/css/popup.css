@@ -1,0 +1,97 @@
+.backroundMask {
+    background-color: rgba(0, 0, 0, 0.5);
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    z-index: 100001;
+}
+.popupSection {
+    z-index: 999;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    position: fixed;
+    border: 1px solid #20b2aa;
+    background-color: #ffffff;
+    width: 600px;
+    height: calc(80% - 120px);
+    overflow: auto;
+}
+.popupHeader {
+    display: inline-block;
+    margin: 0px;
+    padding: 20px 0px 20px 0px;
+}
+.popupKeyVal {
+    width: calc(50% - 20px);
+    float: left;
+}
+.popupInnerCont {
+    padding: 20px;
+    padding-top: 0px;
+    font-family: 'Roboto';
+}
+.view_profile .popupHeaderCont {
+    position: fixed;
+    overflow: hidden;
+    width: 545px;
+    background: #fff;
+}
+.view_profile .body_container {
+    padding-top: 63px;
+}
+.popupRowCont {
+    margin: 20px 0px;
+    padding-left: 20px;
+    overflow: hidden;
+}
+.popupSection .valueInput {
+    width: calc(100% - 15px);
+    padding: 0px 0px 0px 10px;
+    border: 1px solid #cccccc;
+    height: 30px;
+    -webkit-appearance: none;
+    font-size: 16px;
+}
+.popupSection .basic-multi-select,
+.popupSection .basic-select{
+    width: auto;
+}
+.popupSection .react-datepicker-wrapper,
+.popupSection .react-datepicker__input-container,
+.popupSection .react-datepicker__input-container input {
+    width: calc(100% - 5px);
+}
+.popupSection .react-datepicker__input-container input {
+    height: 30px;
+    padding-left: 10px;
+}
+.popupBtnCont{
+    overflow: hidden;
+    margin: 40px 0px 0px;
+    padding-left: 20px;
+    padding-bottom: 20px;
+}
+.popupBtn {
+    width: calc(50% - 10px);
+    display: inline-block;
+    text-align: center;
+    padding: 10px 0px;
+    height: 20px;
+    cursor: pointer;
+}
+.popupUpdate {
+    float: left;
+    color: #008000;
+    background: none;
+    border: 1px solid #008000;
+}
+.cancelPopup {
+    float: right;
+    color: #ff0000;
+}
+.popupSection .picky__dropdown {
+    z-index: 1;
+}

@@ -1,0 +1,268 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+@import url('https://fonts.googleapis.com/css?family=Lato|Sawarabi+Mincho');
+html , body , #root , .parentDom{
+  width: 100%;
+  height: 100%;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Lato';
+}
+.header_container
+{
+  max-width: 1200px;
+  margin: auto;
+  height: 60px;
+}
+.leftcontent
+{
+  float: left;
+  width: 55%;
+}
+.rightContent
+{
+  float: right;
+  padding-right: 25px;
+  height: inherit;
+}
+.header {
+  width: 100%;
+  height: 60px;
+  background: #20b2aa;
+  color: #FFF;
+  z-index: 10;
+  float: left;
+  user-select: none;
+}
+.h-icon{
+  float: left;
+  height: 59px;
+  padding: 0px 58.5px;
+}
+.h-image-icon
+{
+  width: 60px;
+  height: inherit;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+.logocontent
+{
+  font-family: 'Lato';
+  text-align: center;
+  font-size: 24px;
+  padding: 18px 0px;
+  line-height: 24px;
+  float: left;
+}
+.welcome , .userParent
+{
+  font-size: 18px;
+  line-height: 18px;
+  padding: 21px 50px 0px 0px;
+}
+.welcome span
+{
+  padding-left: 8px;
+}
+.maincontent
+{
+  width: 100%;
+  height: calc(100% - 120px);
+  float: left;
+  overflow: hidden;
+  user-select: none;
+}
+.footerContent
+{
+  text-align: center;
+  margin: 22.5px auto;
+  font-size: 15px;
+  float: left;
+}
+.footer 
+{
+  width: 100%;
+  height: 60px;
+  background: #20b2aa;
+ color: #fff;
+  float: left;
+}
+.welcomeUser , .userParent
+{
+  float: left;
+}
+.userParent  , .logout
+{
+  float: left;
+  font-size: 18px;
+  line-height: 18px;
+  height: 18px;
+}
+.userParent
+{
+  padding-right: 15px;
+}
+.admin , .logout
+{
+  cursor: pointer;
+}
+.admin
+{
+  padding-right: 20px;
+}
+a
+{
+  text-decoration: none;
+  color: #fff
+}
+.loadingGauge
+{
+  background: url('../images/loading.svg');
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  position: fixed;
+  width: 100px;
+  height: 100px;
+  left: 0;
+  right: 0;
+}
+#loadingGaugeContainer
+{
+  background-color: rgba(0, 0, 0, 0.5);
+  height: 100%;
+  width: 100%;
+  z-index: 100000;
+  position: fixed;
+  display: none;
+}
+textarea{
+  resize: none;
+}
+.invalidPage {
+    font-family: 'Roboto';
+    font-size: 18px;
+    text-align: center;
+    margin: 100px auto;
+    width: 500px;
+}
+.hideContainer{
+  display: none;
+}
+.popupClose , .resource_table td .cancelResource{
+  background-image: url('../images/delete-sign.png');
+  background-size: 23px;
+  background-repeat: no-repeat;
+  width: 23px;
+  height: 23px;
+  float: right;
+  margin-top: 20px;
+}
+#tabTopcontainer {
+    margin-bottom: 10px;
+}
+.viewer_tab_container {
+  width: 100%;
+  height: 40px;
+  border-bottom: 1px solid #e6e6fa;
+}
+.viewer_tab_container .tabs {
+  vertical-align: middle;
+  display: inline-block;
+  font-size: 16px;
+  padding: 11px;
+  cursor: pointer;
+  font-weight: bold;
+  height: -webkit-fill-available;
+  height: -moz-available;
+}
+.tabs.active {
+  border-bottom: 2px solid #20b2aa;
+}
+.viewer_tab_container .tabs:hover {
+  background-color: #f1f1f1!important
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+thead {
+  background-color: #cee6e3;
+}
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+.viewer_table_container {
+  margin-top: 10px;
+}
+.viewer_table_container {
+  margin-top: 10px;
+  width: 100%;
+  overflow-x: auto;
+  display: inline-block;
+}
+.addBtn{
+  color: #20b2aa;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.saveIcon
+{
+  background-image: url('../images/save.png');
+  height: 20px;
+  width: 20px;
+  background-size: 20px;
+  float: left;
+  cursor: pointer;
+}
+.maintenancePage{
+  text-align: center;
+    font-size: 18px;
+    padding: 100px 0px 0px 0px;
+}
+#NavigationCont
+{
+  float: left;
+  height: calc(100% - 120px);
+  z-index: 999;
+  -webkit-transition: all 400ms cubic-bezier(0.645,0.045,0.355,1);
+  transition: all 400ms cubic-bezier(0.645,0.045,0.355,1);
+}
+.hrnavigationPanel
+{
+  -webkit-transition: all 400ms cubic-bezier(0.645,0.045,0.355,1);
+  transition: all 400ms cubic-bezier(0.645,0.045,0.355,1);
+}
+.menuContainer
+{
+  position: relative;
+}
+.parentContainer + #mainContainer
+{
+  width: 100%;
+}
+#ProjectAvailableResource .selectDropDown, #editResourceAction .selectDropDown
+{
+  width: 90px;
+}
+#ProjectAvailableResource .valueInput, #editResourceAction .valueInput{
+  width: 78px;
+}
+.react-date-picker
+{
+  position: initial;
+}
+.reqMark {
+    color: #ff0000;
+    font-weight: bold;
+}
+.maincontent .react-datepicker select {
+    width: initial;
+}

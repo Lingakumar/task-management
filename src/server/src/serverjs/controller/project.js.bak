@@ -1,0 +1,255 @@
+const util = require('../utils/util.js');
+
+const clientModel = require('../model/clientModel');
+const projectModel = require('../model/project');
+
+const Projects = {
+    createNewProject(req, res) {
+        let reqBody = req && req.body ? req.body : {};
+        let mandatoryFields = [
+            {
+                "key": "project_id",
+                "value": reqBody.project_id,
+                "isMandatory": true
+            },
+            {
+                "key": "client_name",
+                "value": reqBody.client_name,
+                "isMandatory": true
+            },
+            {
+                "key": "project_name",
+                "value": reqBody.project_name,
+                "isMandatory": true
+            },
+            {
+                "key": "start_Date",
+                "value": reqBody.start_Date,
+                "isMandatory": true,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "end_date",
+                "value": reqBody.end_Date,
+                "isMandatory": true,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "sow",
+                "value": reqBody.sow,
+                "isMandatory": true
+            },
+            {
+                "key": "project_cost",
+                "value": reqBody.project_cost,
+                "isMandatory": true
+            }
+        ]
+        let resObj = util.validateRequestBody(mandatoryFields, reqBody);
+        let errors = resObj.errors || [];
+        reqBody = resObj.reqBody || {};
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        let projectObj = {
+            client_name: reqBody.client_name,
+            projects: [{
+                project_id : reqBody.project_id,
+                project_name : reqBody.project_name,
+                sow: reqBody.sow,
+                start_Date: reqBody.start_Date,
+                end_Date: reqBody.end_Date,
+                project_cost: reqBody.project_cost
+            }]
+        }
+        clientModel.createNewProject(projectObj)
+        .then(data => res.send(data))
+        .catch(err => res.send(err));
+    },
+    deleteProject(req, res) {
+        let reqBody = req && req.body ? req.body : {};
+        let mandatoryFields = [
+            {
+                "key": "client_id",
+                "value": reqBody.client_id,
+                "isMandatory": true
+            }
+        ]
+        let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        clientModel.deleteProject(reqBody.client_id)
+        .then(data => res.send(data))
+        .catch(err => res.send(err));
+    },
+    addProjectToClient(req, res) {
+        let reqBody = req && req.body ? req.body : {};
+        let mandatoryFields = [
+            {
+                "key": "project_id",
+                "value": reqBody.project_id,
+                "isMandatory": true
+            },
+            {
+                "key": "client_id",
+                "value": reqBody.client_id,
+                "isMandatory": true
+            },
+            {
+                "key": "project_name",
+                "value": reqBody.project_name,
+                "isMandatory": true
+            },
+            {
+                "key": "start_Date",
+                "value": reqBody.start_Date,
+                "isMandatory": true,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "end_Date",
+                "value": reqBody.end_Date,
+                "isMandatory": true,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "sow",
+                "value": reqBody.sow,
+                "isMandatory": true
+            },
+            {
+                "key": "project_cost",
+                "value": reqBody.project_cost,
+                "isMandatory": true
+            }
+        ]
+        let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        let projectObj = {
+            project_id : reqBody.project_id,
+            project_name : reqBody.project_name,
+            sow: reqBody.sow,
+            start_Date: reqBody.start_Date,
+            end_Date: reqBody.end_Date,
+            project_cost: reqBody.project_cost
+        }
+        projectModel.addProjectToClient(reqBody.client_id, projectObj)
+        .then(data => res.send(data))
+        .catch(err => res.send(err));
+    },
+    removeprojectFromClient(req, res) {
+        let reqBody = req && req.body ? req.body : {};
+        let mandatoryFields = [
+            {
+                "key": "project_id",
+                "value": reqBody.project_id,
+                "isMandatory": true
+            },
+            {
+                "key": "client_id",
+                "value": reqBody.client_id,
+                "isMandatory": true
+            }
+        ]
+        let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        projectModel.removeProjectFromClient(reqBody.client_id, reqBody.project_id)
+        .then(data => res.send(data))
+        .catch(err => res.send(err));
+    },
+    updateProjectData(req, res) {
+        let reqBody = req && req.body ? req.body : {};
+        let message = [];
+        let mandatoryFields = [
+            {
+                "key": "project_id",
+                "value": reqBody.project_id,
+                "isMandatory": false
+            },
+            {
+                "key": "client_name",
+                "value": reqBody.client_name,
+                "isMandatory": false
+            },
+            {
+                "key": "client_id",
+                "value": reqBody.client_id,
+                "isMandatory": true
+            },
+            {
+                "key": "project_name",
+                "value": reqBody.project_name,
+                "isMandatory": false
+            },
+            {
+                "key": "start_Date",
+                "value": reqBody.start_Date,
+                "isMandatory": false,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "end_Date",
+                "value": reqBody.end_Date,
+                "isMandatory": false,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "sow",
+                "value": reqBody.sow,
+                "isMandatory": false
+            },
+            {
+                "key": "project_cost",
+                "value": reqBody.project_cost,
+                "isMandatory": false
+            }
+        ];
+        let updateObj = {};
+        if("project_id" in reqBody || "client_name" in reqBody) {
+            let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+            if(errors && errors.length > 0) {
+                res.send(util.returnResp("Failure", errors));
+                return;
+            }
+            if("project_id" in reqBody) {
+                let clientFields = [
+                    "project_name",
+                    "start_Date",
+                    "end_Date",
+                    "sow",
+                    "project_cost"
+                ]
+                if("client_name" in reqBody) {
+                    updateObj.client_name = reqBody.client_name;
+                }
+                let fields = util.getAvailableFields(clientFields, reqBody);
+                let reqBodyFields = Object.keys(fields);
+                reqBodyFields.map(value => {
+                    updateObj[`projects.$.${value}`] = reqBody[value];
+                })
+            }
+            else if("client_name" in reqBody) {
+                updateObj.client_name = reqBody.client_name;
+            }
+            projectModel.updateProjectData(reqBody.client_id, reqBody.project_id, updateObj)
+            .then(data => res.send(data))
+            .catch(err => res.send(err));    
+        }
+        else {
+            message.push("Client name or Project id is a mandatory field");
+            res.send(util.returnResp("Failure", message));
+            return;
+        }
+    }
+};
+
+module.exports = Projects;

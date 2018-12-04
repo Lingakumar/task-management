@@ -1,0 +1,88 @@
+.main_container {
+    padding: 10px 20px 20px 20px;
+    margin-top: 20px;
+    overflow: auto;
+    height: auto;
+}
+.title_container {
+    margin-bottom: 0px;
+    display: block;
+    background: #7B7B7B;
+    color: #fff;
+}
+.title_container .title {
+    padding: 3px 10px;
+    font-size: 16px;
+    line-height: 16px;
+    vertical-align: top;
+    height: 17px;
+}
+.body_container .elem_container {
+    margin: 10px 20px 0px 0px;
+    padding-left: 20px;
+    float: left;
+}
+.elem_container .label_name {
+    width: 160px;
+    display: inline-block;
+}
+.info_container {
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 30px;
+}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+.info_container select {
+    width: 150px;
+}
+.info_container .react-datepicker__input-container input {
+    height: 23px;
+    width: 138px;
+}
+#joining_date .value_cont, .multiSelectParent .value_cont, .user_dob .value_cont{
+    float: right;
+    height: 25px;
+    width: 150px;
+}
+.btn_cont {
+    margin: auto;
+    margin-top: 20px;
+    width: 200px;
+}
+.btn_cont .submit_cont,
+.btn_cont .reset_cont {
+    width: calc(50% - 5px);
+    display: inline-block;
+}
+.btn_cont .reset_cont,
+.addProj_btn_cont .cancel_cont {
+    margin-left: 10px;
+}
+.addProj_btn_cont {
+    width: 300px;
+}
+.addProj_btn_cont .submit_cont,
+.addProj_btn_cont .reset_cont,
+.addProj_btn_cont  .cancel_cont {
+    width: calc(30% - 5px);
+    display: inline-block;
+}
+.btn_cont button {
+    background-color: #20b2aa;
+    text-decoration: none;
+    height: 40px;
+    width: 100%;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+}
+#switchTabsContainer {
+    overflow: auto;
+    height: fit-content;
+}

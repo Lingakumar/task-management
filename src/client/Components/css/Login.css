@@ -1,0 +1,335 @@
+.loginpage
+{
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    position: fixed;
+    width: 500px;
+    height: 450px;
+    border: 1px solid #20b2aa;
+    left: 0;
+    right: 0;
+    font-family: 'Roboto';
+    z-index: 9;
+    background: #fff;
+}
+.loginWrapper
+{
+    float: left;
+    height: calc( 100% - 40px);
+    width: calc( 100% - 40px );
+    padding: 20px;
+    overflow: hidden;
+}
+.userName , .password , .helpcontainer , .modal_container
+{
+    width: calc( 100% - 40px);
+    padding: 20px;
+}
+.userImage , .passwordImg , .mailImg , .tagImg
+{
+    background-image: url("../images/sprites.png");
+    height: 24px;
+    background-position: -9px 43px;
+    width: 21px;
+    display: block;
+    float: left;
+    padding: 8px 10px;
+    border-right: 1px solid #20b2aa;
+}
+.passwordImg 
+{
+    background-position: 161px 44px;
+}
+.mailImg{
+    background-position: -161px -61px;
+    background-size: 240px 32.33px;
+}
+.tagImg{
+    background-position: 48px 3px;
+    background-size: 240px 32.33px;
+}
+#userid , #pwdid , .forgotPwdParentdiv , .creteAccntParentDiv
+{
+    width: 100%;
+    height: 40px;
+    border: 1px solid #20b2aa;
+}
+body .input
+{
+    width: calc( 100% - 49px);
+    height: 40px;
+    border: none;
+    padding: 0px;
+    outline: none;
+    background: #fff !important;
+    text-decoration: none;
+    background-color: #fff !important; 
+    padding-left: 5px;
+    font-family: 'Lato';
+}
+.loginHeader
+{
+    padding: 20px;
+    margin: 0px;
+}
+.button
+{
+    float: left;
+    width: calc(100% - 40px);
+    display: block;
+    padding: 20px;
+    text-transform: uppercase;
+}
+.helpcontainer , .forgotPwdCont , .changePwd
+{
+    float: left;
+    text-align: center;
+}
+.forgotPwdCont , .changePwd
+{
+    width: 49%;   
+}
+.forgotPwdCont , .changePwd
+{
+    width: auto;
+    display: inline;
+    padding-right: 10px;
+    font-size: 14px;
+}
+.forgotpwdcontent , .changePwdContent
+{
+    padding-bottom: 2px;
+    display: inline;
+    cursor: pointer;
+    font-size: 14px;
+}
+.creteAccntParentDiv
+{
+    margin: 20px 0px;
+    float: left;
+}
+.modal_container , #signupForm , .formContainer , .socialLogin , .socialLoginContainer
+{
+    float: left;
+}
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px white inset;
+    box-shadow:  0 0 0 30px white inset;
+}
+.changePwdContent
+{
+    padding-left: 5px;
+}
+.forgotPwdContainer
+{
+    height: max-content;
+}
+.button .btn-3 {
+    background-color: #20b2aa;
+}
+.btn-3 .round {
+    background-color: #737478;
+}
+.button a {
+    text-decoration: none;
+    -moz-border-radius: 30px;
+    -webkit-border-radius: 30px;
+    border-radius: 30px;
+    padding: 12px 53px 12px 23px;
+    color: #fff;
+    text-transform: uppercase;
+    font-family: 'Roboto';
+    font-weight: bold;
+    position: relative;
+    -moz-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    display: inline-block;
+}
+.button a span {
+    position: relative;
+    z-index: 3;
+}
+.button a .round {
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    position: absolute;
+    right: 3px;
+    top: 3px;
+    -moz-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    -webkit-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
+    z-index: 2;
+}
+.button a .round i {
+    position: absolute;
+    top: 50%;
+    margin-top: -6px;
+    left: 50%;
+    margin-left: -4px;
+    -moz-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    -webkit-transition: all 0.3s;
+    transition: all 0.3s;
+    color: #20b2aa;
+}
+.button .txt {
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.button .type-3 .round {
+    background: transparent;
+}
+.button .type-3 a {
+    position: relative;
+    overflow: hidden;
+}
+.button .type-3 a.btn-1:after {
+    background-color: #f59965;
+}
+.button .type-3 a.btn-2:after {
+    background-color: #00c4eb;
+}
+.button .type-3 a.btn-3:after {
+    background-color: #fff;
+}
+.button .type-3 a:after {
+    content: "";
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    width: 37px;
+    height: 38px;
+    position: absolute;
+    right: 3px;
+    top: 3px;
+    -moz-transition: all 0.3s ease-out;
+    -o-transition: all 0.3s ease-out;
+    -webkit-transition: all 0.3s ease-out;
+    transition: all 0.3s ease-out;
+}
+.button .type-3 a:hover:after {
+    right: 100%;
+    width: 50%;
+}
+.button .type-3 a:hover i {
+    margin-left: 4px;
+    color: #fff;
+}
+.button .type-3
+{
+    float: left;
+    align-items: center;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+.backtoLogincont
+{
+    float: right;
+    font-size: 14px;
+    cursor: pointer;
+}
+.chnagePwd .modal_container
+{
+    padding-top: 0px;
+}
+.helpcontainer
+{
+    float: right;
+    text-align: end;
+}
+#errordom
+{
+    display: block;
+    text-align: center;
+    padding-top: 15px;
+    color: red;
+}
+@media only screen and (min-width:320px) and (max-width: 767px) {
+    .leftcontent
+    {
+        width: 80%;
+    }
+    .h-icon
+    {
+      padding: 0px 20px;
+    }
+    .logocontent
+    {
+      font-size: 16px;
+    }
+    .loginpage
+    {
+      width: 99% !important;
+      height: 70% !important;
+      border: none !important;
+    }
+    .loginWrapper , .loginHeader , .button
+    {
+      padding: 10px 5px !important;
+      width: calc( 100% - 10px) !important;
+    }
+    .userName, .password, .helpcontainer
+    {
+      padding: 10px 5px !important;
+      width: calc(100% - 10px) !important;
+    }
+    .loginbuttoncont
+    {
+      float: left !important;
+    }
+    .orContent
+    {
+      padding: 13px 0px 13px 2px !important;
+    }
+    .loginWrapper
+    {
+      overflow: auto !important;
+    }
+    .socialLogin:before
+    {
+      left: 105px;
+    }
+    .logout
+    {
+        font-size: 16px;
+    }
+  }
+  @media only screen and (min-width:320px) and (max-width: 767px) and (orientation : landscape)
+  {
+  .orContent
+    {
+      padding: 13px 2% 13px 2% !important;
+    }
+  }
+  @media only screen and (max-height:420px) and (max-width: 850px) and (orientation : landscape) /* Ios devices */
+  {
+  .loginpage
+    {
+      height: 60%;
+    }
+    .loginWrapper
+    {
+      overflow: auto !important;
+    }
+  }
+  .realButton
+  {
+      width: 0px;
+      height: 0px;
+      border: none;
+      background: transparent;
+      padding: 0px;
+  }
+  #errordom span
+  {
+      text-transform: capitalize;
+  }

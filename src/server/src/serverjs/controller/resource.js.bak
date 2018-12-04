@@ -1,0 +1,802 @@
+const util = require('../utils/util.js');
+
+const resourceModel = require('../model/resource');
+const resource_history_model = require('../model/resourceHistory');
+const resource_mapper = require('../model/resourceMapper');
+
+const Resources = {
+    createResource(req, res) {
+        let reqBody = req.body || {};
+        let fields = [
+            {
+                "key": "employee_id",
+                "value": reqBody.id,
+                "isMandatory": true,
+                "pattern": "^\\d+$"
+            },
+            {
+                "key": "name",
+                "value": reqBody.name,
+                "isMandatory": true,
+                "pattern": "^[a-zA-Z  |]*$"
+            },
+            {
+                "key": "email_id",
+                "value": reqBody.email_id,
+                "isMandatory": true,
+                "pattern": /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+            },
+            {
+                "key": "personal_email_id",
+                "value": reqBody.personal_email_id,
+                "isMandatory": true,
+                "pattern": /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/            
+            },
+            {
+                "key": "gender",
+                "value": reqBody.gender,
+                "isMandatory": true,
+                "pattern": /^[a-zA-Z ]*$/
+            },
+            {
+                "key": "nationality",
+                "value": reqBody.nationality,
+                "isMandatory": true,
+                "pattern": /^[a-zA-Z ]*$/
+            },
+            {
+                "key": "mobile_phone_number",
+                "value": reqBody.mobile_phone_number,
+                "isMandatory": true,
+                "pattern": "^\\d{10}$"
+            },
+            {
+                "key": "additional_number",
+                "value": reqBody.additional_number,
+                "isMandatory": false,
+                "pattern": "^\\d{10}$"
+            },
+            {
+                "key": "address_line_1",
+                "value": reqBody.address_line_1,
+                "isMandatory": true,
+                "pattern": /^[a-zA-Z0-9\s,.'-]{3,}$/
+            },
+            {
+                "key": "address_line_2",
+                "value": reqBody.address_line_2,
+                "isMandatory": false,
+                "pattern": /^[a-zA-Z0-9\s,.'-]{3,}$/
+            },
+            {
+                "key": "city",
+                "value": reqBody.city,
+                "isMandatory": true,
+                "pattern": /^[a-zA-Z ]*$/
+            },
+            {
+                "key": "state",
+                "value": reqBody.state,
+                "isMandatory": true,
+                "pattern": /^[a-zA-Z ]*$/
+            },
+            {
+                "key": "country",
+                "value": reqBody.country,
+                "isMandatory": true,
+                "pattern": /^[a-zA-Z ]*$/
+            },
+            {
+                "key": "pincode",
+                "value": reqBody.pincode,
+                "isMandatory": true,
+                "pattern": ""
+            },
+            {
+                "key": "primary_skill",
+                "value": reqBody.primary_skill,
+                "isMandatory": true,
+                "type": "Array"
+            },
+            {
+                "key": "secondary_skills",
+                "value": reqBody.secondary_skills,
+                "isMandatory": false,
+                "type": "Array"
+            },
+            {
+                "key": "experience",
+                "value": reqBody.experience,
+                "isMandatory": true,
+                "pattern": "^\\d+$"
+            },
+            {
+                "key": "designation",
+                "value": reqBody.designation,
+                "isMandatory": true,
+                "pattern": /^[a-zA-Z ]*$/
+            },
+            {
+                "key": "date_of_joining",
+                "value": reqBody.date_of_joining,
+                "isMandatory": true,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "date_of_birth",
+                "value": reqBody.date_of_birth,
+                "isMandatory": true,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "pan_number",
+                "value": reqBody.pan_number,
+                "isMandatory": false,
+                "pattern": "[A-Za-z]{5}\d{4}[A-Za-z]{1}"
+            },
+            {
+                "key": "account_number",
+                "value": reqBody.account_number,
+                "isMandatory": false,
+                "pattern": "^\\d+$"
+            },
+            {
+                "key": "passport",
+                "value": reqBody.passport,
+                "isMandatory": false,
+                "type": "boolean"
+            },
+            {
+                "key": "blood_group",
+                "value": reqBody.blood_group,
+                "isMandatory": true,
+            },
+            {
+                "key": "UAN_number",
+                "value": reqBody.UAN_number,
+                "isMandatory": false,
+                "pattern": "^\\d+$"
+            },
+            {
+                "key": "in_Notice_Period",
+                "value": reqBody.in_Notice_Period,
+                "isMandatory": false
+            },
+            {
+                "key": "department",
+                "value": reqBody.department,
+                "isMandatory": true,
+                "pattern": /^[a-zA-Z ]*$/
+            }
+        ]
+        if(reqBody.designation != "CEO" && reqBody.designation != "CTO") {
+            fields.push(
+                {
+                    "key": "functional_manager_id",
+                    "value": reqBody.functional_manager_id,
+                    "isMandatory": true,
+                    "pattern": ""
+                },
+                {
+                    "key": "functional_manager_name",
+                    "value": reqBody.functional_manager_name,
+                    "isMandatory": true,
+                    "pattern": ""
+        }
+            );
+        }
+        let errors = util.validateRequestBody(fields);
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        let dataObj = {
+            employee_id: reqBody.id,
+            name: reqBody.name,
+            email_id: reqBody.email_id,
+            personal_email_id: reqBody.personal_email_id,
+            gender: reqBody.gender,
+            nationality: reqBody.nationality,
+            mobile_phone_number: reqBody.mobile_phone_number,
+            additional_number: reqBody.additional_number,
+            address_line_1: reqBody.address_line_1,
+            address_line_2: reqBody.address_line_2 || "-",
+            city: reqBody.city,
+            state: reqBody.state,
+            country: reqBody.country,
+            pincode: reqBody.pincode,
+            primary_skill: reqBody.primary_skill,
+            secondary_skills: reqBody.secondary_skills || [],
+            experience: reqBody.experience || "",
+            designation: reqBody.designation,
+            date_of_joining: reqBody.date_of_joining,
+            date_of_birth: reqBody.date_of_birth,
+            pan_number: reqBody.pan_number || "-",
+            account_number: reqBody.account_number || "-",
+            passport: reqBody.passport || false,
+            blood_group: reqBody.blood_group || "-",
+            UAN_number: reqBody.UAN_number || "-",
+            in_Notice_Period: false,
+            department: reqBody.department
+        }
+        let resource_mapper_object = {
+            employee_id: reqBody.id,
+            name: reqBody.name,
+            email_id: reqBody.email_id,
+            primary_skill: reqBody.primary_skill,
+            secondary_skills: reqBody.secondary_skills || [],
+            designation: reqBody.designation,
+            projects: []
+        }
+        if(reqBody.designation != "CEO" && reqBody.designation != "CTO") {
+            dataObj.functional_manager_name = reqBody.functional_manager_name || "";
+            dataObj.functional_manager_id = reqBody.functional_manager_id || "";
+        }
+        resourceModel.createResource(dataObj)
+        .then(data => {
+            let resp = data.resp || data;
+            let mapperObj = {
+                db: data.db,
+                data: resource_mapper_object,
+                message: resp.message
+            }
+            console.log(mapperObj);
+            //data.data = resource_mapper_object;
+            console.log(data);
+            if(resp.status == "Success") {
+                resource_mapper.createResource(mapperObj)
+                .then(mapperData => {
+                    res.send(resp);
+                    console.log(mapperData);
+                })
+                .catch(err => res.send(err));
+            }
+            else {
+                res.send(resp);
+            }
+        })
+        .catch(err => {
+            let message = [];
+            message.push("There was some error while creating resources");
+            res.send(util.returnResp("Failure", message, err));
+        });
+    },
+    updateResource(req, res) {
+        let reqBody = req.body || {};
+        let message = [];
+        if("email_id" in reqBody) {
+            message.push("Email field canot be changed / modified");
+            delete reqBody.email_id;
+        }
+        let mandatoryFields = [
+            {
+                "key": "employee_id",
+                "value": reqBody.id,
+                "isMandatory": true,
+                "pattern": "^\\d+$"
+            },
+            {
+                "key": "name",
+                "value": reqBody.name,
+                "isMandatory": false,
+                "pattern": "^[a-zA-Z ]*$"
+            },
+            {
+                "key": "personal_email_id",
+                "value": reqBody.personal_email_id,
+                "isMandatory": false,
+                "pattern": /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/            
+            },
+            {
+                "key": "gender",
+                "value": reqBody.gender,
+                "isMandatory": false,
+                "pattern": /^[a-zA-Z ]*$/
+            },
+            {
+                "key": "nationality",
+                "value": reqBody.nationality,
+                "isMandatory": false,
+                "pattern": /^[a-zA-Z ]*$/
+            },
+            {
+                "key": "mobile_phone_number",
+                "value": reqBody.mobile_phone_number,
+                "isMandatory": false,
+                "pattern": "^\\d{10}$"
+            },
+            {
+                "key": "additional_number",
+                "value": reqBody.additional_number,
+                "isMandatory": false,
+                "pattern": "^\\d{10}$"
+            },
+            {
+                "key": "address_line_1",
+                "value": reqBody.address_line_1,
+                "isMandatory": false,
+                "pattern": /^[a-zA-Z0-9\s,.'-]{3,}$/
+            },
+            {
+                "key": "address_line_2",
+                "value": reqBody.address_line_2,
+                "isMandatory": false,
+                "pattern": /^[a-zA-Z0-9\s,.'-]{3,}$/
+            },
+            {
+                "key": "city",
+                "value": reqBody.city,
+                "isMandatory": false,
+                "pattern": /^[a-zA-Z ]*$/
+            },
+            {
+                "key": "state",
+                "value": reqBody.state,
+                "isMandatory": false,
+                "pattern": /^[a-zA-Z ]*$/
+            },
+            {
+                "key": "country",
+                "value": reqBody.country,
+                "isMandatory": false,
+                "pattern": /^[a-zA-Z ]*$/
+            },
+            {
+                "key": "pincode",
+                "value": reqBody.pincode,
+                "isMandatory": false
+            },
+            {
+                "key": "primary_skill",
+                "value": reqBody.primary_skill,
+                "isMandatory": false,
+                "type": "Array"
+            },
+            {
+                "key": "secondary_skills",
+                "value": reqBody.secondary_skills,
+                "isMandatory": false,
+                "type": "Array"
+            },
+            {
+                "key": "experience",
+                "value": reqBody.experience,
+                "isMandatory": false,
+                "pattern": "^\\d+$"
+            },
+            {
+                "key": "designation",
+                "value": reqBody.designation,
+                "isMandatory": false,
+                "pattern": /^[a-zA-Z ]*$/
+            },
+            {
+                "key": "date_of_birth",
+                "value": reqBody.date_of_birth,
+                "isMandatory": false,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "pan_number",
+                "value": reqBody.pan_number,
+                "isMandatory": false,
+                "pattern": "[A-Za-z]{5}\d{4}[A-Za-z]{1}"
+            },
+            {
+                "key": "account_number",
+                "value": reqBody.account_number,
+                "isMandatory": false,
+                "pattern": "^\\d+$"
+            },
+            {
+                "key": "passport",
+                "value": reqBody.passport,
+                "isMandatory": false,
+                "type": "boolean"
+            },
+            {
+                "key": "blood_group",
+                "value": reqBody.blood_group,
+                "isMandatory": false,
+            },
+            {
+                "key": "UAN_number",
+                "value": reqBody.UAN_number,
+                "isMandatory": false,
+                "pattern": "^\\d+$"
+            },
+            {
+                "key": "department",
+                "value": reqBody.department,
+                "isMandatory": false,
+                "pattern": /^[a-zA-Z ]*$/
+            }
+        ]
+        let resource_mapper_fields = [
+            "id",
+            "name",
+            "primary_skill",
+            "secondary_skills",
+            "designation"
+        ]
+        let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        let mapper_fields = util.getAvailableFields(resource_mapper_fields, reqBody);
+        if(Object.keys(reqBody).length > 1) {
+            Promise.all([
+                resourceModel.updateResource(reqBody),
+                resource_mapper.updateResource(mapper_fields)
+            ])
+            .then(data => {
+                let resourceData = data[0] || {};
+                let mapperData = data[1] || {}; 
+                res.send(resourceData);
+                console.log(mapperData);
+            })
+            .catch(err => {
+                let message = [];
+                message.push("There was some error while creating resources");
+                res.send(util.returnResp("Failure", message, err));
+            });
+        }
+        else {
+            message.push("There was no data to update / modify");
+            res.send(util.returnResp("Failure", message));    
+        }
+    },
+    removeResource(req, res) {
+        let reqBody = req.body || {};
+        let message = [];
+        let mandatoryFields = [
+            {
+                "key": "employee_id",
+                "value": reqBody.id,
+                "isMandatory": true,
+                "pattern": "^\\d+$"
+            }
+        ]
+        let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        Promise.all([
+            resourceModel.removeResource(reqBody.id),
+            resource_mapper.removeResource(reqBody.id)
+        ])
+        .then(obj => {
+            let data = obj[0];
+            let mapperObj = obj[1];
+            console.log(mapperObj);
+            if(data.status == "Success") {
+                resource_history_model.addResource(data)
+                .then(data => {
+                    res.send(data);
+                })
+                .catch(err => {
+                    message.push("There was some error while adding resources to history");
+                    res.send(util.returnResp("Failure", message, err));
+                });        
+            }
+            else {
+                res.send(data);
+            }
+        })
+        .catch(err => {
+            message.push("There was some error while deleting resources");
+            res.send(util.returnResp("Failure", message, err));
+        });
+    },
+    resourceExit(req, res) {
+        let reqBody = req.body || {};
+        let mandatoryFields = [
+            {
+                "key": "employee_id",
+                "value": reqBody.employee_id,
+                "isMandatory": true,
+                "pattern": "^\\d+$"
+            },
+            {
+                "key": "email_id",
+                "value": reqBody.email_id,
+                "isMandatory": true,
+                "pattern": /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
+            },
+            {
+                "key": "date_of_releiving",
+                "value": reqBody.date_of_releiving,
+                "isMandatory": true,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "reason",
+                "value": reqBody.reason,
+                "isMandatory": true
+            },
+            {
+                "key": "acceptance_status",
+                "value": reqBody.acceptance_status,
+                "isMandatory": true
+            },
+            {
+                "key": "comments",
+                "value": reqBody.comments,
+                "isMandatory": false
+            }
+        ]
+        let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        let employee_id = reqBody.employee_id;
+        let email_id = reqBody.email_id;
+        let resourceObj = {
+            "in_Notice_Period": true,
+            "date_of_releiving": reqBody.date_of_releiving,
+            "reason": reqBody.reason,
+            "acceptance_status": reqBody.acceptance_status,
+            "comments": reqBody.comments
+        }
+        resourceModel.resourceExit(employee_id, email_id, resourceObj)
+        .then(data => res.json(data))
+        .catch(err => res.json(err));
+    },
+    allocateToProject(req, res) {
+        let reqBody = req.body || {};
+        let message = [];
+        let mandatoryFields = [
+            {
+                "key": "project_id",
+                "value": reqBody.project_id,
+                "isMandatory": true
+            },
+            {
+                "key": "employee_id",
+                "value": reqBody.employee_id,
+                "isMandatory": true,
+                "pattern": "^\\d+$"
+            },
+            {
+                "key": "client_id",
+                "value": reqBody.client_id,
+                "isMandatory": true
+            },
+            {
+                "key": "role",
+                "value": reqBody.role,
+                "isMandatory": true
+            },
+            {
+                "key": "start_date",
+                "value": reqBody.start_date,
+                "isMandatory": true,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "end_date",
+                "value": reqBody.end_date,
+                "isMandatory": true,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "allocation",
+                "value": reqBody.allocation,
+                "isMandatory": true,
+                "pattern": "^\\d+$"
+            }
+        ]
+        let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+        if(parseInt(reqBody.allocation) <= 0) {
+            errors.push("The allocation percentage should be greater than zero");
+        }
+        else if(parseInt(reqBody.allocation) > 100) {
+            errors.push("The allocation percentage should not be greater than 100");
+        }
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        let employee_id = reqBody.employee_id;
+        let projectInfo =  {
+            clientId: reqBody.client_id,
+            projectId: reqBody.project_id,
+            role: reqBody.role,
+            start_date: reqBody.start_date,
+            end_date: reqBody.end_date,
+            allocation: reqBody.allocation,
+            status: "pending"
+        }
+        let startDate = new Date(reqBody.start_date).getTime();
+        let endDate = new Date(reqBody.end_date).getTime();
+        if(endDate < startDate) {
+            message.push("Start date value should be less than the end date");    
+            res.send (util.returnResp("Failure", message));
+            return;
+        }
+        if(startDate && endDate) {
+            resource_mapper.allocateProject(employee_id, projectInfo)
+            .then(data => res.send(data))
+            .catch(err => res.send(err));
+        }
+        else {
+            message.push("Please enter date in valid format");    
+            res.send (util.returnResp("Failure", message));
+        }
+    },
+    releaseFromProject(req, res) {
+        let reqBody = req.body || {};
+        let mandatoryFields = [
+            {
+                "key": "project_id",
+                "value": reqBody.project_id,
+                "isMandatory": true
+            },
+            {
+                "key": "employee_id",
+                "value": reqBody.employee_id,
+                "isMandatory": true,
+                "pattern": "^\\d+$"
+            },
+            {
+                "key": "client_id",
+                "value": reqBody.client_id,
+                "isMandatory": true
+            }
+        ]
+        let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        let employee_id = reqBody.employee_id;
+        let project_id = reqBody.project_id;
+        let client_id = reqBody.client_id;
+        resource_mapper.releaseFromProject(employee_id, project_id, client_id)
+        .then(data => res.send(data))
+        .catch(err => res.send(err));    
+    },
+    updateResourceProjectInfo(req, res) {
+        let reqBody = req.body || {};
+        let message = [];
+        let mandatoryFields = [
+            {
+                "key": "project_id",
+                "value": reqBody.project_id,
+                "isMandatory": true
+            },
+            {
+                "key": "employee_id",
+                "value": reqBody.employee_id,
+                "isMandatory": true,
+                "pattern": "^\\d+$"
+            },
+            {
+                "key": "client_id",
+                "value": reqBody.client_id,
+                "isMandatory": true
+            },
+            {
+                "key": "role",
+                "value": reqBody.role,
+                "isMandatory": false
+            },
+            {
+                "key": "start_date",
+                "value": reqBody.start_date,
+                "isMandatory": false,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "end_date",
+                "value": reqBody.end_date,
+                "isMandatory": false,
+                "pattern": /^((0?[1-9]|1[012])[- /.](0?[1-9]|[12][0-9]|3[01])[- /.](19|20)?[0-9]{2})*$/
+            },
+            {
+                "key": "allocation",
+                "value": reqBody.allocation,
+                "isMandatory": false,
+                "pattern": "^\\d+$"
+            }
+        ]
+        let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        let employee_id = reqBody.employee_id;
+        let project_id = reqBody.project_id;
+        let client_id = reqBody.client_id;
+        let toUpdateFields = [
+            "role",
+            "start_date",
+            "end_date",
+            "allocation"
+        ]
+        let mapper_fields = util.getAvailableFields(toUpdateFields, reqBody);
+        let updateObj = {};
+        let reqBodyFields = Object.keys(mapper_fields);
+        reqBodyFields.map(value => {
+            updateObj[`projects.$.${value}`] = reqBody[value];
+        })
+        let startDate = new Date(reqBody.start_date).getTime();
+        let endDate = new Date(reqBody.end_date).getTime();
+        if(endDate < startDate) {
+            message.push("Start date value should be less than the end date");    
+            res.send (util.returnResp("Failure", message));
+            return;
+        }
+        if(startDate && endDate) {
+            resource_mapper.updateResourceProjectInfo(employee_id, project_id, client_id, updateObj)
+            .then(data => res.send(data))
+            .catch(err => res.send(err)); 
+        }
+        else {
+            message.push("Please enter date in valid format");    
+            res.send (util.returnResp("Failure", message));
+        }
+    },
+    viewResourceDaetails(req , res)
+    {
+        let reqBody = req.body || {};
+        let mandatoryFields = [
+            { 
+                "key": "employee_id",
+                "value": reqBody.employee_id,
+                "isMandatory": true,
+                "pattern": "^\\d+$"
+            }
+         ]
+        let resObj = util.validateRequestBody(mandatoryFields, reqBody); \nlet errors = resObj.errors || []; \nreqBody = resObj.reqBody || {};
+        if(errors && errors.length > 0) {
+            res.send(util.returnResp("Failure", errors));
+            return;
+        }
+        let employee_id = reqBody.employee_id;
+        resourceModel.viewResourceDaetails(employee_id)
+        .then(data => 
+            {
+                let objectArr = [];
+                if(data && data.status && data.status == "Success")
+                {
+                    let ressponseData = data && data.status && data.status == "Success" ?  data.message[0] : "";
+                    res.status(200).json({data: ressponseData , "status":"Success"});
+                }
+                else{
+                    res.status(200).json({objectArr , "status":"Failure"});
+                }
+            }
+        )
+        .catch(err => res.send(err));
+    },
+    getAllResources(req, res) {
+        let reqBody = req.body || {};
+        let reqObj = {
+            "limit": reqBody.limit || 10,
+            "page": reqBody.page || 1,
+            "filters": reqBody.filters || []
+        }
+        resourceModel.getAllResources(reqObj)
+        .then(data => res.send(data))
+        .catch(err => res.send(err));
+    },
+    /* this method is for getting resource details from external files */
+    getResourceDetails(dbInstance, query) {
+        if(query) {
+            return resource_mapper.getResourceDetails(dbInstance, query)
+            .then(data => data)
+            .catch(err => err);
+        }
+        else {
+            return new Promise((resolve, reject) => {
+                resolve([]);
+            });
+        }
+    }        
+}
+
+module.exports = Resources;

@@ -1,0 +1,99 @@
+const collectionName = "resources_admin";
+
+const dbUtil = require("./dbUtil");
+const util = require('../utils/util');
+const resourceController = require("../controller/resource.js");
+
+const UserAdminModel = {
+    activateAccount(email_id) {
+        let message = [];
+        return dbUtil.connectDb()
+        .then(dbInstance => {
+            let db = dbInstance.db("API").collection(collectionName);
+            let query = {email_id};
+            return resourceController.getResourceDetails(dbInstance, query)
+            .then(data => {
+                console.log(data);
+                if(data.length > 0) {
+                    let userData = data[0];
+                    let userObj = {
+                        name: userData.name || "",
+                        email_id,
+                        employee_id: userData.employee_id || "",
+                        password: "skava123"
+                    }
+                    return db.findOneAndUpdate(query, {$set:userObj}, {upsert: true})
+                    .then(data => {
+                        dbInstance.close();
+                        if(data && data.lastErrorObject && data.lastErrorObject.updatedExisting) {
+                            message.push("The User Data with this emailId already exists");
+                            return (util.returnResp("Failure", message, data.value));
+                        }
+                        else {
+                            message.push("We have successfully added the Resource as the admin");
+                            return (util.returnResp("Success", message));
+                        } 
+                    })
+                    .catch(err => {
+                        message.push("There was some error while adding user as admin");
+                        dbInstance.close();
+                        return (util.returnResp("Failure", message, err));
+                    });
+                }
+                else {
+                    dbInstance.close();
+                    message.push("There is no user data found for the email id provided");
+                    return (util.returnResp("Failure", message)); 
+                }
+            })
+            .catch(err => {
+                message.push("We are not able to get this Resource details at the moment");
+                dbInstance.close();
+                return (util.returnResp("Failure", message, err));
+            });
+        })
+        .catch(err => {
+            dbInstance.close();
+            message.push("There was some error while connecting to user database");
+            return (util.returnResp("Failure", message, err));
+        });
+    },
+    verifyUser(email_id, password) {
+        let message = [];
+        let toFind = {email_id};
+        return dbUtil.connectDb()
+        .then(dbInstance => {
+            let db = dbInstance.db("API").collection(collectionName);
+            return db.find(toFind).toArray()
+            .then(data => {
+                if(data.length > 0) {
+                    let userData = data[0];
+                    console.log(password);
+                    console.log(userData.password);
+                    if(userData.password == password) {
+                        return {
+                            status: "Success",
+                            data: {
+                                email_id: userData.email_id, 
+                                employee_id: userData.employee_id, 
+                                name: userData.name
+                            }
+                        }
+                    }
+                    else {
+                        return {
+                            status: "Failure"
+                        }
+                    }
+                }
+                else {
+                    dbInstance.close();
+                    message.push("There is no user data found for the email id provided");
+                    return (util.returnResp("Failure", message));
+                }
+            })
+        })
+    }
+}
+
+module.exports = UserAdminModel;
