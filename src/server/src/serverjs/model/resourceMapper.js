@@ -389,10 +389,10 @@ const resourceMapper = {
             }
         })
     },
-    async getResourceDetails(dbIns, query) {
+    async getResourceDetails(dbIns, query , projectionFields) {
         let dbInstance = dbIns || await dbUtil.connectDb();
         let db = dbInstance.db(DBNAME).collection(collectionName);
-        return db.find(query).toArray()
+        return db.find(query).project(projectionFields).toArray()
         .then(data => data)
         .catch(err => err);
     },

@@ -1,6 +1,7 @@
 let mongoDb = require("mongodb");
 let mongoClient = mongoDb.MongoClient;
-let dbURL = "mongodb://dinesh:dineshit8@ds233763.mlab.com:33763/rmt";
+let dbURL = "mongodb://localhost:27017"
+//let dbURL = "mongodb://dinesh:dineshit8@ds233763.mlab.com:33763/rmt";
 const DBNAME = "rmt";
 const dbUtil = {
     connectDb() {

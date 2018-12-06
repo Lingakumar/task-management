@@ -4,12 +4,10 @@ const resource_mapper = require('../model/resourceMapper');
 const dbUtil = require("./dbUtil");
 const util = require('../utils/util');
 const timesheetMapper = {
-    getData(reqBody , empid)
+    getData(empid)
     {
         let message = [];
         let employee_id = empid ? empid : "";
-        let fromdate = reqBody.fromtime;
-        let todate = reqBody.totime;
         let toFind = {employee_id: employee_id}
         let toFindFuncnRes = {functional_manager_id: employee_id}
         let projectionFields = {
@@ -24,7 +22,7 @@ const timesheetMapper = {
             "functional_manager_id" : 1,
             "_id": 0
         }
-        if(employee_id && fromdate && todate)
+        if(employee_id && employee_id.length)
         {
             return dbUtil.connectDb()
             .then(dbInstance => {
@@ -45,6 +43,7 @@ const timesheetMapper = {
                             }
                             else
                             {
+                                message.push("Functional data not found");
                                 return({message: message, userData: empData});
                             }
                         })
@@ -55,7 +54,7 @@ const timesheetMapper = {
                     }
                 })
                 .catch(err=> {
-                    message.push("Error while getting data");
+                    message.push("Error while getting Employee data");
                     return({message: message, userData: empData})
                 })
             })
