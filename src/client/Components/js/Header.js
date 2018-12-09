@@ -9,7 +9,9 @@ import HrLanding from './Hr';
 import {DmLanding} from './Dm';
 import Cookies from 'js-cookie';
 import {MakeAjax} from './utils/util'
-import Resource from "./Resource"
+import Resource from "./Resource";
+import TimeSheet from '../../pages/js/timesheet_viewer';
+
 class Header extends Component {
     constructor(props)
     {
@@ -85,6 +87,7 @@ class Header extends Component {
                     <div className = "parentContainer">
                         <Route path="/login" component={Login}/>
                     </div>
+                    <Route exact path="/tasks" component = {TimeSheet} />
                     {this.state.pancakeData && (window.location.pathname === "/dmlanding" || window.location.pathname === "/hrlanding") ?
                         <div id = "NavigationCont">
                             <Navigation value = {this.state.pancakeData.redirectData ? this.state.pancakeData.redirectData : []}/>
@@ -98,8 +101,8 @@ class Header extends Component {
                             <Route exact path="/hrlanding" component = {HrLanding}/>
                             <Route exact path="/dmlanding" component = {DmLanding}/>
                             <Route exact path="/account" component = {Maintenance}/>
-                            { 
-                                window.location.pathname !== "/login" && window.location.pathname !== "/" ? <Route component = {InvalidPage}/> : ""
+                            {
+                                window.location.pathname !== "/tasks" && window.location.pathname !== "/login" && window.location.pathname !== "/" ? <Route component = {InvalidPage}/> : ""
                             }
                         </Switch>
                     </div>
